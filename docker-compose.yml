@@ -1,0 +1,43 @@
+version: "3"
+
+services:
+  app:
+    build:
+      context: node
+    container_name: app
+    volumes:
+      - ./node:/usr/src/app
+    tty: true
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  nginx:
+    build:
+      context: ./nginx
+    container_name: nginx
+    ports:
+      - "8080:80"
+    depends_on:
+      - app
+    networks:
+      - app-network
+
+  db:
+    image: mysql:5.7
+    container_name: db
+    restart: always
+    tty: true
+    networks:
+      - app-network
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: app
+      MYSQL_USER: app
+      MYSQL_PASSWORD: app
+
+networks:
+  app-network:
+    driver: bridge
